@@ -1,19 +1,48 @@
 version: "3.7"
+
 services:
+
   app: 
+
     build: './app'
     container_name: 'app'
     restart: 'always'
     expose: 
-      - 8000
+      - '8000'
     # ports:
     #   - '8000:8000'
     volumes:
     - type: 'bind'
       source: './volumes/app'
       target: '/app'
+    environment:
+      - "MARIADB_DATABASE=django_app"
+      - "MARIADB_USER=django_user"
+      - "MARIADB_PASSWORD=1234"
+      - "MARIADB_HOST=mariadb"    
+    depends_on:
+      - "mariadb"
+      - "nginx"
+
+  mariadb:
+
+    image: 'mariadb:latest'
+    container_name: 'mariadb'
+    restart: 'always'
+    expose: 
+      - '3306'
+    volumes:
+    - type: 'bind'
+      source: './volumes/dbdata'
+      target: '/var/lib/mysql'
+    environment:
+      - "MARIADB_DATABASE=django_app"
+      - "MARIADB_USER=django_user"
+      - "MARIADB_PASSWORD=1234"
+      - "MARIADB_ROOT_DATABASE=1234"
 
   nginx:
+
     build: './nginx'
     container_name: 'nginx'
     restart: 'always'
